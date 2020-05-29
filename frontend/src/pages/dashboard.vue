@@ -7,8 +7,8 @@ export default defineComponent({
   props: {
     domain: {
       type: String,
-      default: () => window.location.hostname,
-    },
+      default: () => window.location.hostname
+    }
   },
   setup(props) {
     const error = ref<string>(null);
@@ -21,7 +21,7 @@ export default defineComponent({
     const browsers = computed(() => {
       const browsers: Record<string, number> = {};
 
-      devices.value.forEach((device) => {
+      devices.value.forEach(device => {
         if (!(device.browser in browsers)) {
           browsers[device.browser] = 0;
         }
@@ -38,13 +38,13 @@ export default defineComponent({
       () => [domain.value, resource.value],
       async ([domain, resource]) => {
         const base = 'https://api.thesemetrics.xyz';
-        const url = `${base}/stats?domain=${encodeURIComponent(domain)}&path=${encodeURIComponent(resource||'*')}`;
+        const url = `${base}/stats?domain=${encodeURIComponent(domain)}&path=${encodeURIComponent(resource || '*')}`;
         const response = await fetch(url);
 
         if (response.ok && response.status === 200) {
           const result = await response.json();
 
-          console.log(result)
+          console.log(result);
 
           devices.value = result.devices;
           pageviews.value = result.pageviews;
@@ -72,27 +72,21 @@ export default defineComponent({
     );
 
     return { domain, resource, total, totalUnique, pageviews, browsers, resources, referrers, error };
-  },
+  }
 });
 </script>
 
 <template>
   <div v-if="error" :class="$style.dashboard">
     <div :class="$style.project">
-      <label>
-        {{ domain }}
-      </label>
+      <label>{{ domain }}</label>
     </div>
 
-    <div :class="$style.graph" role="alert" style="color: red; text-align: center;">
-      {{ error }}
-    </div>
+    <div :class="$style.graph" role="alert" style="color: red; text-align: center;">{{ error }}</div>
   </div>
   <div v-else :class="$style.dashboard">
     <div :class="$style.project">
-      <label>
-        {{ domain }}
-      </label>
+      <label>{{ domain }}</label>
     </div>
 
     <div :class="$style.unique">{{ totalUnique }} unique visitors</div>
@@ -102,30 +96,32 @@ export default defineComponent({
       <PageViewGraph :data="pageviews" />
     </div>
 
-    <div :class="$style.resources">
-      <h2>Top Pages</h2>
-      <ul>
-        <li v-for="item of resources">
-          <label>
-            <input type="radio" :value="item.path" v-model="resource" />
-            {{ item.path === '*' ? 'Total' : item.path }} — {{ item.count }}
-          </label>
-        </li>
-      </ul>
-    </div>
+    <div :class="$style.bottomContent">
+      <div :class="$style.resources">
+        <h2 :class="$style.bold">Top Pages</h2>
+        <ul :class="$style.mt">
+          <li v-for="item of resources">
+            <label>
+              <input type="radio" :value="item.path" v-model="resource" />
+              {{ item.path === '*' ? 'Total' : item.path }} — {{ item.count }}
+            </label>
+          </li>
+        </ul>
+      </div>
 
-    <div :class="$style.browsers">
-      <h2>Browsers</h2>
-      <ul>
-        <li v-for="(count, browser) of browsers">{{ browser }} — {{ count }}</li>
-      </ul>
-    </div>
+      <div :class="$style.browsers">
+        <h2 :class="$style.bold">Browsers</h2>
+        <ul :class="$style.mt">
+          <li v-for="(count, browser) of browsers">{{ browser }} — {{ count }}</li>
+        </ul>
+      </div>
 
-    <div :class="$style.referrers">
-      <h2>Traffic Sources</h2>
-      <ul>
-        <li v-for="(count, referrer) of referrers">{{ referrer }} — {{ count }}</li>
-      </ul>
+      <div :class="$style.referrers">
+        <h2 :class="$style.bold">Traffic Sources</h2>
+        <ul :class="$style.mt">
+          <li v-for="(count, referrer) of referrers">{{ referrer }} — {{ count }}</li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -134,7 +130,7 @@ export default defineComponent({
 .dashboard {
   margin: 2rem auto;
   display: grid;
-  grid-template-areas: 'X X X X' 'A A B B' 'C C C C' 'D D E F';
+  grid-template-areas: 'X X X X' 'A A B B' 'C C C C' 'D D D D';
 }
 
 .project {
@@ -164,13 +160,22 @@ export default defineComponent({
 .graph {
   grid-area: C;
 }
-.resources {
+
+.bottomContent {
   grid-area: D;
+  padding: 1rem;
 }
-.browsers {
-  grid-area: E;
+
+.bold {
+  font-weight: 700;
 }
+
+.mt {
+  margin-top: 0.6rem;
+}
+
+.browsers,
 .referrers {
-  grid-area: F;
+  margin-top: 1rem;
 }
 </style>
